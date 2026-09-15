@@ -1,0 +1,5 @@
+
+[dev]
+black
+ruff
+pytest

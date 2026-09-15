@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: aiphase9
+Version: 0.1.0
+Summary: Running Local Models
+Requires-Python: >=3.10
+Provides-Extra: dev
+Requires-Dist: black; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: pytest; extra == "dev"

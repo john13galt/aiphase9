@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+src/aiphase9/__init__.py
+src/aiphase9.egg-info/PKG-INFO
+src/aiphase9.egg-info/SOURCES.txt
+src/aiphase9.egg-info/dependency_links.txt
+src/aiphase9.egg-info/requires.txt
+src/aiphase9.egg-info/top_level.txt

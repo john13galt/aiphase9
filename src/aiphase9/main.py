@@ -16,7 +16,7 @@ def rope_angles(position, embedsize):
     # Positions is a 1-D tensor.  Embedsize is an interger
     assert embedsize % 2 == 0, f"embedsize is odd: {embedsize}"
     # first make angles shape (embedsize//2, len(positions)
-    angles = torch.zeros((int(embedsize/2),len(position)))
+    angles = torch.zeros((int(embedsize/2),len(position)), device=position.device)
     for i in range(len(angles)):
         angles[i] = position / 10000 ** (2*i / embedsize)
     # transpose because angles should be shape (len(position), embedsize//2)

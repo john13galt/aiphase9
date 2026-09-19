@@ -2,6 +2,9 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from safetensors.torch import save_file, load_file
+from safetensors import safe_open
+
 # import torchvision
 import time
 # from torchvision.datasets import MNIST
@@ -528,3 +531,98 @@ print_sequence(startertokens)
 print("Full sequence:")
 print_sequence(returned_tokens)
 
+print("\n")
+print("--------------------------------------------------------")
+print("-"*10, "Lesson 50 - Safetensors & GGUP", "-"*10)
+print("--------------------------------------------------------")
+
+# Pretend tensors
+tensors = {
+    "WQ": torch.randn(8,8),
+    "WK": torch.randn(4,8),
+    "WV": torch.randn(4,8),
+    "bias": torch.randn(8),
+}
+
+save_file(tensors, "tiny_model.safetensors")
+
+# My real model tensors
+save_file(model.state_dict(), "model.safetensors")
+print("state_dict")
+for name, tensor in model.state_dict().items():
+    print(name, tensor.shape, tensor.dtype)
+print("\nsafetensors")
+with safe_open("model.safetensors", framework="pt") as f:
+
+    print("Tensors:")
+
+    for key in f.keys():
+        tensor = f.get_tensor(key)
+
+        print(
+            key,
+            "shape =", tuple(tensor.shape),
+            "dtype =", tensor.dtype
+        )
+
+print("\n")
+print("--------------------------------------------------------")
+print("-"*10, "Lesson 51 - Quantizers", "-"*10)
+print("--------------------------------------------------------")
+
+weights = torch.tensor([
+    -1.0,
+    -0.7,
+    -0.3,
+     0.1,
+     0.4,
+     0.6,
+     0.8,
+     1.0
+])
+print(f"Weights: {weights}")
+
+def quantize4(weights):
+    bits = 4
+    scale = torch.max(torch.abs(weights))/(2**(bits-1)-1)
+
+    quants = torch.round(weights/scale).to(torch.int8)
+    return quants, scale
+
+def pack4(quants):
+    assert len(quants)%2 == 0, f"quants must have even length"
+    new = []
+    values = quants+8
+    for i in range(0, len(quants)-1, 2):
+        low = int(values[i])
+        high = int(values[i+1])
+        byte = low | (high << 4)
+        new.append(byte)
+    return torch.tensor(new, dtype=torch.uint8)
+
+def unpack4(packed):
+    new = []
+    for i in packed:
+        byte = int(i)
+        new.append((byte & 0x0F) - 8)
+        new.append ((byte >> 4) - 8)
+    return torch.tensor(new, dtype=torch.int8)
+
+def dequantize4(quants, scale):
+    reconstruct = quants * scale
+    return reconstruct
+
+quants, scale = quantize4(weights)
+print(f"scale: {scale}")
+print(f"quantized: {quants}")
+
+packets = pack4(quants)
+print(f"packets: {packets}")
+unpackets = unpack4(packets)
+print(f"unpackets: {unpackets}")
+
+recons = dequantize4(unpackets, scale)
+print(f"reconstructed: {recons}")
+
+error = weights - recons
+print(f"error: {error}")

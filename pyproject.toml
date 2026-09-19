@@ -7,7 +7,9 @@ name = "aiphase9"
 version = "0.1.0"
 description = "Running Local Models"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "safetensors"
+]
 
 [project.optional-dependencies]
 dev = ["black", "ruff", "pytest"]

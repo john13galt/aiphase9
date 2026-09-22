@@ -665,7 +665,7 @@ while True:
         formatted = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         print(f"\tFormatted template: {formatted}")
         print(f"\tFormatted tokens: {tokenizer.tokenize(formatted)}")
-        f_tokens_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True)
+        f_token_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True)
         print(f"\tFormatted Token_ids({len(f_token_ids)}): {f_token_ids}")
         
         # send the context to the chatbot

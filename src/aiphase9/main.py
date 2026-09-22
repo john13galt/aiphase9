@@ -652,14 +652,19 @@ while True:
         userinput = input("You: ")
         if userinput == "/bye": break
 
-        # add my prompt to the context
-        messages.append({"role":"user", "content":userinput})
-
         # Break into tokens & get token IDs (not necessary, but I want to see it)
         tokens = tokenizer.tokenize(userinput)
         token_ids = tokenizer.encode(userinput)
         print(f"\tTokens: {tokens}")
         print(f"\tToken_ids({len(token_ids)}): {token_ids}")
+
+        # add my prompt to the context
+        messages.append({"role":"user", "content":userinput})
+
+        # Now look at what the chat template looks like
+        formatted = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        print(f"\tFormatted template: {formatted}")
+        print(f"\tFormatted tokens: {tokenizer.tokenize(formatted)}")
 
         # send the context to the chatbot
         response = chat(model="qwen3:0.6b", messages=messages)

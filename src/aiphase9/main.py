@@ -634,9 +634,8 @@ print("--------------------------------------------------------")
 print("-"*10, "Lesson 52, 53 - Ollama API", "-"*10)
 print("--------------------------------------------------------")
 
-# messages is basically the context window for the chat.  It is a list of dicts.
-# each dict has two entries:  "role" and "content"
-# role can be:
+# messages is basically the conversation history for the chat (what the context is built from).
+# It is a list of dicts. Each dict has two entries:  "role" and "content".  Role can be:
 #       "user" - that means me
 #       "assistant" - that means the chatbont
 #       "system" - not sure what this means... maybe foe settings?
@@ -662,11 +661,16 @@ while True:
         messages.append({"role":"user", "content":userinput})
 
         # Now look at what the chat template looks like
+        # When I do it with tokenize = false, it returns a list of strings (the tokens)
         formatted = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         print(f"\tFormatted template: {formatted}")
         print(f"\tFormatted tokens: {tokenizer.tokenize(formatted)}")
+        # when I do it with tokenize = true, it returns a a dict with two entries:
+        #       "input_ids" is the list of token_ids
+        #       "attention_mask", which is probably the mask from our transformer... in this case it
+        #           is all 1's, probably meaning the model can look at all the token ids 
         f_token_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True)
-        print(f"\tFormatted Token_ids({len(f_token_ids)}): {f_token_ids}")
+        print(f"\tFormatted Token_ids({len(f_token_ids["input_ids"])}): {f_token_ids}")
         
         # send the context to the chatbot
         response = chat(model="qwen3:0.6b", messages=messages)

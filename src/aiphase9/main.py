@@ -638,7 +638,7 @@ print("--------------------------------------------------------")
 # It is a list of dicts. Each dict has two entries:  "role" and "content".  Role can be:
 #       "user" - that means me
 #       "assistant" - that means the chatbont
-#       "system" - not sure what this means... maybe foe settings?
+#       "system" - give instructions to the chatbot like "you are a math tutor"
 # To keep a conversation going, you have to repeated keep appending to messages with
 # alternating roles... user - assistant - user - assistant ... etc
 messages = []
@@ -671,6 +671,7 @@ while True:
         #           is all 1's, probably meaning the model can look at all the token ids 
         f_token_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True)
         print(f"\tFormatted Token_ids({len(f_token_ids["input_ids"])}): {f_token_ids}")
+        print(f"\tRemaining Tokens: {8192 - len(f_token_ids["input_ids"])}")
         
         # send the context to the chatbot
         response = chat(model="qwen3:0.6b", messages=messages)

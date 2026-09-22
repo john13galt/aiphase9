@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from safetensors.torch import save_file, load_file
 from safetensors import safe_open
+from ollama import chat
+from transformers import AutoTokenizer
 
 # import torchvision
 import time
@@ -626,3 +628,51 @@ print(f"reconstructed: {recons}")
 
 error = weights - recons
 print(f"error: {error}")
+
+print("\n")
+print("--------------------------------------------------------")
+print("-"*10, "Lesson 52, 53 - Ollama API", "-"*10)
+print("--------------------------------------------------------")
+
+# messages is basically the context window for the chat.  It is a list of dicts.
+# each dict has two entries:  "role" and "content"
+# role can be:
+#       "user" - that means me
+#       "assistant" - that means the chatbont
+#       "system" - not sure what this means... maybe foe settings?
+# To keep a conversation going, you have to repeated keep appending to messages with
+# alternating roles... user - assistant - user - assistant ... etc
+messages = []
+
+tokenizer = AutoTokenizer.from_pretrained(
+    "Qwen/Qwen3-0.6B"
+)
+
+while True:
+        userinput = input("You: ")
+        if userinput == "/bye": break
+
+        # add my prompt to the context
+        messages.append({"role":"user", "content":userinput})
+
+        # Break into tokens & get token IDs (not necessary, but I want to see it)
+        tokens = tokenizer.tokenize(text)
+        token_ids = tokenizer.encode(text)
+        print(f"\tTokens: {tokens}")
+        print(f"\tToken_ids({len(token_ids)}): {token_ids}")
+
+        # send the context to the chatbot
+        response = chat(model="qwen3:0.6b", messages=messages)
+
+        # Response is an object.  to get the text do this:
+        answer = response.message.content
+
+
+        # add the answer to the context, from the "assistant"
+        messages.append({"role":"assistant", "content":answer})
+
+        # now print the response
+        print("Bot:", answer, "\n")
+
+print("All done")
+

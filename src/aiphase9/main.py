@@ -656,8 +656,8 @@ while True:
         messages.append({"role":"user", "content":userinput})
 
         # Break into tokens & get token IDs (not necessary, but I want to see it)
-        tokens = tokenizer.tokenize(text)
-        token_ids = tokenizer.encode(text)
+        tokens = tokenizer.tokenize(userinput)
+        token_ids = tokenizer.encode(userinput)
         print(f"\tTokens: {tokens}")
         print(f"\tToken_ids({len(token_ids)}): {token_ids}")
 

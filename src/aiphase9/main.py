@@ -671,7 +671,7 @@ while True:
         #       "attention_mask", which is probably the mask from our transformer... in this case it
         #           is all 1's, probably meaning the model can look at all the token ids 
         f_token_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True)
-        print(f"\tFormatted Token_ids({len(f_token_ids["input_ids"])}): {f_token_ids}")
+        # print(f"\tFormatted Token_ids({len(f_token_ids["input_ids"])}): {f_token_ids}")
         print(f"\tRemaining Tokens: {CONTEXTWINDOW - len(f_token_ids["input_ids"])}")
         
         # send the context to the chatbot

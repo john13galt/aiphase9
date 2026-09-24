@@ -675,7 +675,7 @@ while True:
         print(f"\tRemaining Tokens: {CONTEXTWINDOW - len(f_token_ids["input_ids"])}")
         
         # send the context to the chatbot
-        response = chat(model="qwen3:0.6b", messages=messages, options={num_ctx:CONTEXTWINDOW})
+        response = chat(model="qwen3:0.6b", messages=messages, options={"num_ctx":CONTEXTWINDOW})
 
         # Response is an object.  to get the text do this:
         answer = response.message.content

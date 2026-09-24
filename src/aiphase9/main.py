@@ -647,6 +647,7 @@ tokenizer = AutoTokenizer.from_pretrained(
     "Qwen/Qwen3-0.6B"
 )
 
+CONTEXTWINDOW = 1024
 while True:
         userinput = input("You: ")
         if userinput == "/bye": break
@@ -671,10 +672,10 @@ while True:
         #           is all 1's, probably meaning the model can look at all the token ids 
         f_token_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True)
         print(f"\tFormatted Token_ids({len(f_token_ids["input_ids"])}): {f_token_ids}")
-        print(f"\tRemaining Tokens: {8192 - len(f_token_ids["input_ids"])}")
+        print(f"\tRemaining Tokens: {CONTEXTWINDOW - len(f_token_ids["input_ids"])}")
         
         # send the context to the chatbot
-        response = chat(model="qwen3:0.6b", messages=messages)
+        response = chat(model="qwen3:0.6b", messages=messages, options={num_ctx:CONTEXTWINDOW})
 
         # Response is an object.  to get the text do this:
         answer = response.message.content

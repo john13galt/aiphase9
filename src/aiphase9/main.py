@@ -687,8 +687,8 @@ while True:
         messages.append({"role":"assistant", "content":answer})
 
         # now print the response
-        print(f"Bot (ttft: {response.prompt_eval_duration}, \
-              tps: {response.eval_count/response.eval_duration}): \
+        print(f"Bot (ttft: {response.prompt_eval_duration/1e9}, \
+              tps: {response.eval_count/(response.eval_duration/1e9)}): \
               {answer}\n")
 
 print("All done")

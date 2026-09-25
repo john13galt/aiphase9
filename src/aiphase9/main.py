@@ -647,7 +647,7 @@ tokenizer = AutoTokenizer.from_pretrained(
     "Qwen/Qwen3-0.6B"
 )
 
-CONTEXTWINDOW = 4096
+CONTEXTWINDOW = int(input("Enter Context Window:"))
 while True:
         userinput = input("You: ")
         if userinput == "/bye": break

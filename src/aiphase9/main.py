@@ -647,7 +647,7 @@ tokenizer = AutoTokenizer.from_pretrained(
     "Qwen/Qwen3-0.6B"
 )
 
-CONTEXTWINDOW = 1024
+CONTEXTWINDOW = 4096
 while True:
         userinput = input("You: ")
         if userinput == "/bye": break
@@ -674,8 +674,10 @@ while True:
         # print(f"\tFormatted Token_ids({len(f_token_ids["input_ids"])}): {f_token_ids}")
         print(f"\tRemaining Tokens: {CONTEXTWINDOW - len(f_token_ids["input_ids"])}")
         
-        # send the context to the chatbot
+        # send the context to the chatbot (and time it)
+        start = time.perf_counter()
         response = chat(model="qwen3:0.6b", messages=messages, options={"num_ctx":CONTEXTWINDOW})
+        duration = time.perf_counter() - start
 
         # Response is an object.  to get the text do this:
         answer = response.message.content
@@ -685,7 +687,9 @@ while True:
         messages.append({"role":"assistant", "content":answer})
 
         # now print the response
-        print("Bot:", answer, "\n")
+        print(f"Bot (ttft: {response.prompt_eval_duration}, \
+              tps: {response.eval_count/response.eval_duration}): \
+              {answer}\n")
 
 print("All done")
 

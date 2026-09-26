@@ -38,7 +38,7 @@ tools = tool_list
 messages = []
 CONTEXTWINDOW = 8192
 
-messages.append({"role":"user", "content":"What is 3.8 times 4.9"})
+messages.append({"role":"user", "content":"What is 3.8 times 4.9?"})
 
 response = chat(model="qwen3:0.6b", 
                 messages=messages, 

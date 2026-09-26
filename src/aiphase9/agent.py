@@ -46,4 +46,8 @@ response = chat(model="qwen3:0.6b",
                 tools=tools,
                 )
 
+print(messages)
+print()
+print(tools)
+print()
 print(response)

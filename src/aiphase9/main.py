@@ -678,7 +678,8 @@ while True:
         start = time.perf_counter()
         response = chat(model="qwen3:0.6b", messages=messages, options={"num_ctx":CONTEXTWINDOW})
         duration = time.perf_counter() - start
-
+        print(response)
+        
         # Response is an object.  to get the text do this:
         answer = response.message.content
 

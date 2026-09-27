@@ -35,7 +35,7 @@ def calculator(a, b, operation):
         raise ValueError(f"Unknown operation: {operation}")
 
 def get_time():
-    return "The current time is {datetime.now().time()}."
+    return f"The current time is {datetime.now().time()}."
 
 tool_registry = {
     "calculator": calculator,

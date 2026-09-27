@@ -9,6 +9,7 @@ from transformers import AutoTokenizer
 
 # import torchvision
 import time
+from datetime import datetime
 # from torchvision.datasets import MNIST
 # from torchvision import transforms
 # from torch.utils.data import DataLoader
@@ -32,6 +33,14 @@ def calculator(a, b, operation):
         return a / b
     else:
         raise ValueError(f"Unknown operation: {operation}")
+
+def get_time():
+    return "The current time is {datetime.now().time()}."
+
+tool_registry = {
+    "calculator": calculator,
+    "get_time": get_time,
+}
 
 tools = tool_list
 
@@ -70,10 +79,10 @@ while True:
             # Loop through all the tool_calls... the LLM can return more than one.
             for tool_call in response.message.tool_calls:
                 # check what tool it is... only process valid tool calls
-                if tool_call.function.name == "calculator":
+                if tool_call.function.name in tool_registry:
                     # call the tool
                     print("Tool arguments: ", tool_call.function.arguments)
-                    result = calculator(**(tool_call.function.arguments))
+                    result = tool_registry[tool_call.function.name](**(tool_call.function.arguments))
                     # print(result)
 
                     # Append tool call result to messages... note the role is "tool" and provide "tool_name", also

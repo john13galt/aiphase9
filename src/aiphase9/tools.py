@@ -29,5 +29,17 @@ tool_list = [
                 "required": ["a", "b", "operation"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_time",
+            "description": "Get the current time.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
     }
 ]

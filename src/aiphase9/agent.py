@@ -49,7 +49,7 @@ tool_response = response.message.tool_calls[0]
 print(tool_response.function.name)
 print(tool_response.function.arguments)
 
-if tool_response.function.name == "calculator"
+if tool_response.function.name == "calculator":
     result = calculator(**(tool_response.function.arguments))
     print(result)
 else:

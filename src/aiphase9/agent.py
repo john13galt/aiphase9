@@ -57,7 +57,7 @@ while True:
     # check to see if the response is a tool call
     if not response.message.tool_calls:
         # just a regular chat response, print it and append it to messages 
-        print(response.message.content)
+        print("Chat response: ",response.message.content)
         messages.append({"role": "assistant", "content":response.message.content})
     else:
         # Add the assistant's request to the conversation (adding the whole thing)
@@ -90,6 +90,6 @@ while True:
                 )
 
         # This is the response I print... the last response after looping through the tool calls
-        print("Tool response":response.message.content)
+        print("Tool response: ",response.message.content)
 
 

@@ -60,34 +60,36 @@ while True:
         print(response.message.content)
         messages.append({"role": "assistant", "content":response.message.content})
     else:
-        # a tool call... get the tool info
-        tool_response = response.message.tool_calls[0]
-        print(tool_response.function.name)
-        print(tool_response.function.arguments)
+        # Add the assistant's request to the conversation (adding the whole thing)
+        messages.append(response.message)
 
-        # check what tool it is... only process valid tool calls
-        if tool_response.function.name == "calculator":
-            # call the tool
-            result = calculator(**(tool_response.function.arguments))
-            # print(result)
+        # Loop through all the tool_calls... the LLM can return more than one.
+        for tool_call in response.message.tool_calls:
+            # check what tool it is... only process valid tool calls
+            if tool_call.function.name == "calculator":
+                # call the tool
+                result = calculator(**(tool_call.function.arguments))
+                # print(result)
 
-            # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
-            messages.append({
-                "role": "tool",
-                "tool_name": tool_response.function.name,
-                "content": str(result),
-            })
-            # Then call chat with the new message
-            response = chat(model="qwen3:0.6b", 
-                    messages=messages, 
-                    options={"num_ctx":CONTEXTWINDOW},
-                    tools=tools,
-                    )
-            # This is the response I print
-            print(response.message.content)
-        else:
-            # really shouldn't get here.  It should only call tools I defined
-            print("illegal function")
-            break
+                # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
+                messages.append({
+                    "role": "tool",
+                    "tool_name": tool_call.function.name,
+                    "content": str(result),
+                })
+            else:
+                # really shouldn't get here.  It should only call tools I defined
+                print("illegal function")
+                break
+
+        # After looping through all the tool calls, call chat again with the accumulated messages
+        response = chat(model="qwen3:0.6b", 
+                messages=messages, 
+                options={"num_ctx":CONTEXTWINDOW},
+                tools=tools,
+                )
+
+        # This is the response I print... the last response after looping through the tool calls
+        print("Tool response":response.message.content)
 
 

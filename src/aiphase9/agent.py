@@ -84,7 +84,7 @@ while True:
                     print("Tool arguments: ", tool_call.function.arguments)
                     result = tool_registry[tool_call.function.name](**(tool_call.function.arguments))
                     # print(result)
-
+                    print("Tool result: ", result)
                     # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
                     messages.append({
                         "role": "tool",

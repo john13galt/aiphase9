@@ -38,47 +38,56 @@ tools = tool_list
 messages = []
 CONTEXTWINDOW = 8192
 
-# make a prompt
-messages.append({"role":"user", "content":"What is 3.8 times 4.9?"})
+# Agentic loop.  Agentic because it supports tool calls
+while True:
+    # Get user input
+    userinput = input("You: ")
+    if userinput == "/bye": break
 
-# call cat with messages and send it "tools"
-response = chat(model="qwen3:0.6b", 
-                messages=messages, 
-                options={"num_ctx":CONTEXTWINDOW},
-                tools=tools,
-                )
+    # make a prompt
+    messages.append({"role":"user", "content":"What is 3.8 times 4.9?"})
 
-# check to see if the response is a tool call
-if not response.message.tool_calls:
-    # just a regular chat response, print it and append it to messages 
-    print(response.message.content)
-    messages.append({"role": "assistant", "content":response.message.content})
-else:
-    # a tool call... get the tool info
-    tool_response = response.message.tool_calls[0]
-    print(tool_response.function.name)
-    print(tool_response.function.arguments)
+    # call cat with messages and send it "tools"
+    response = chat(model="qwen3:0.6b", 
+                    messages=messages, 
+                    options={"num_ctx":CONTEXTWINDOW},
+                    tools=tools,
+                    )
 
-    # check what tool it is... only process valid tool calls
-    if tool_response.function.name == "calculator":
-        # call the tool
-        result = calculator(**(tool_response.function.arguments))
-        print(result)
-
-        # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
-        messages.append({
-            "role": "tool",
-            "tool_name": tool_response.function.name,
-            "content": str(result),
-        })
+    # check to see if the response is a tool call
+    if not response.message.tool_calls:
+        # just a regular chat response, print it and append it to messages 
+        print(response.message.content)
+        messages.append({"role": "assistant", "content":response.message.content})
     else:
-        print("illegal function")
+        # a tool call... get the tool info
+        tool_response = response.message.tool_calls[0]
+        print(tool_response.function.name)
+        print(tool_response.function.arguments)
 
-response = chat(model="qwen3:0.6b", 
-                messages=messages, 
-                options={"num_ctx":CONTEXTWINDOW},
-                tools=tools,
-                )
-print(response)
-print(response.message.content)
+        # check what tool it is... only process valid tool calls
+        if tool_response.function.name == "calculator":
+            # call the tool
+            result = calculator(**(tool_response.function.arguments))
+            # print(result)
+
+            # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
+            messages.append({
+                "role": "tool",
+                "tool_name": tool_response.function.name,
+                "content": str(result),
+            })
+            # Then call chat with the new message
+            response = chat(model="qwen3:0.6b", 
+                    messages=messages, 
+                    options={"num_ctx":CONTEXTWINDOW},
+                    tools=tools,
+                    )
+            # This is the response I print
+            print(response.message.content)
+        else:
+            # really shouldn't get here.  It should only call tools I defined
+            print("illegal function")
+            break
+
 

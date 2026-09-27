@@ -68,7 +68,7 @@ else:
         # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
         messages.append({
             "role": "tool",
-            "tool_name": tool_call.function.name,
+            "tool_name": tool_response.function.name,
             "content": str(result),
         })
     else:

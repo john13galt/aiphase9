@@ -45,7 +45,7 @@ while True:
     if userinput == "/bye": break
 
     # make a prompt
-    messages.append({"role":"user", "content":"What is 3.8 times 4.9?"})
+    messages.append({"role":"user", "content":userinput})
 
     # call cat with messages and send it "tools"
     response = chat(model="qwen3:0.6b", 

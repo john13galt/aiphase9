@@ -60,7 +60,7 @@ else:
     print(tool_response.function.arguments)
 
     # check what tool it is... only process valid tool calls
-    tool_response.function.name == "calculator":
+    if tool_response.function.name == "calculator":
         # call the tool
         result = calculator(**(tool_response.function.arguments))
         print(result)

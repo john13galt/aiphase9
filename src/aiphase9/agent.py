@@ -72,6 +72,7 @@ while True:
                 # check what tool it is... only process valid tool calls
                 if tool_call.function.name == "calculator":
                     # call the tool
+                    print("Tool arguments: ", tool_call.function.arguments)
                     result = calculator(**(tool_call.function.arguments))
                     # print(result)
 

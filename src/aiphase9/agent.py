@@ -79,6 +79,6 @@ response = chat(model="qwen3:0.6b",
                 options={"num_ctx":CONTEXTWINDOW},
                 tools=tools,
                 )
-
+print(response)
 print(response.message.content)
 

@@ -45,9 +45,12 @@ response = chat(model="qwen3:0.6b",
                 options={"num_ctx":CONTEXTWINDOW},
                 tools=tools,
                 )
+tool_response = response.message.tool_calls[0]
+print(tool_response.function.name)
+print(tool_response.function.arguments)
 
-print(messages)
-print()
-print(tools)
-print()
-print(response)
+if tool_response.function.name == "calculator"
+    result = calculator(**(tool_response.function.arguments))
+    print(result)
+else:
+    print("illegal function")

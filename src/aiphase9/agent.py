@@ -38,19 +38,47 @@ tools = tool_list
 messages = []
 CONTEXTWINDOW = 8192
 
+# make a prompt
 messages.append({"role":"user", "content":"What is 3.8 times 4.9?"})
+
+# call cat with messages and send it "tools"
+response = chat(model="qwen3:0.6b", 
+                messages=messages, 
+                options={"num_ctx":CONTEXTWINDOW},
+                tools=tools,
+                )
+
+# check to see if the response is a tool call
+if not response.message.tool_calls:
+    # just a regular chat response, print it and append it to messages 
+    print(response.message.content)
+    messages.append({"role": "assistant", "content":response.message.content})
+else:
+    # a tool call... get the tool info
+    tool_response = response.message.tool_calls[0]
+    print(tool_response.function.name)
+    print(tool_response.function.arguments)
+
+    # check what tool it is... only process valid tool calls
+    tool_response.function.name == "calculator":
+        # call the tool
+        result = calculator(**(tool_response.function.arguments))
+        print(result)
+
+        # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
+        messages.append({
+            "role": "tool",
+            "tool_name": tool_call.function.name,
+            "content": str(result),
+        })
+    else:
+        print("illegal function")
 
 response = chat(model="qwen3:0.6b", 
                 messages=messages, 
                 options={"num_ctx":CONTEXTWINDOW},
                 tools=tools,
                 )
-tool_response = response.message.tool_calls[0]
-print(tool_response.function.name)
-print(tool_response.function.arguments)
 
-if tool_response.function.name == "calculator":
-    result = calculator(**(tool_response.function.arguments))
-    print(result)
-else:
-    print("illegal function")
+print(response.message.content)
+

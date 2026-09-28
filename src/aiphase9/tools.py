@@ -3,7 +3,7 @@ tool_list = [
         "type": "function",
         "function": {
             "name": "calculator",
-            "description": "Perform a basic arithmetic operation on two numbers.  Use this tool instead of calculating yourself.",
+            "description": "Perform a basic arithmetic operation on two numbers.  Use this tool instead of calculating yourself. Handles diviision by zero.",
             "parameters": {
                 "type": "object",
                 "properties": {

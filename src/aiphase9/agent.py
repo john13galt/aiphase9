@@ -80,11 +80,16 @@ while True:
             for tool_call in response.message.tool_calls:
                 # check what tool it is... only process valid tool calls
                 if tool_call.function.name in tool_registry:
-                    # call the tool
-                    print("Tool arguments: ", tool_call.function.arguments)
-                    result = tool_registry[tool_call.function.name](**(tool_call.function.arguments))
-                    # print(result)
-                    print("Tool result: ", result)
+                    # call the tool... inside a "try-except" to catch errors
+                    try: 
+                        # Call the tool (use the registry  to find tools)
+                        print("Tool arguments: ", tool_call.function.arguments)
+                        result = tool_registry[tool_call.function.name](**(tool_call.function.arguments))
+                        print("Tool result: ", result)
+                    except Exception as e:
+                        # if the tools errors, still create a "result" to add to the message history
+                        result = f"Error: {e}"
+
                     # Append tool call result to messages... note the role is "tool" and provide "tool_name", also
                     messages.append({
                         "role": "tool",

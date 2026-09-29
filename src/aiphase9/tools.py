@@ -1,3 +1,32 @@
+# This file contains all my agent tools.  It has 3 sections
+#       Section 1:  Tool functions
+#       Section 2:  Tool registry (dict of name-functions pairs)
+#       Section 3:  Tool schema - list of dicts, with a dict for each tool
+
+# ----------- Section 1:  Tool functions -----------
+def calculator(a, b, operation):
+    if operation == "add" or operation == "+":
+        return a + b
+    elif operation == "subtract" or operation == "-":
+        return a - b
+    elif operation == "multiply" or operation == "*":
+        return a * b
+    elif operation == "divide" or operation == "/":
+        return a / b
+    else:
+        raise ValueError(f"Unknown operation: {operation}")
+
+def get_time():
+    return f"The current time is {datetime.now().time()}."
+
+# ----------- Section 2:  Tool registry -----------
+tool_registry = {
+    "calculator": calculator,
+    "get_time": get_time,
+}
+
+# ----------- Section 3:  Tool schema -----------
+# Gives me the schema/descriptions for all my tools (a list of dicts)
 tool_list = [
     {
         "type": "function",

@@ -74,6 +74,7 @@ def start_agent(tool_registry, tool_list, CONTEXTWINDOW):
                             print("Tool result: ", result)
                         except Exception as e:
                             # if the tools errors, still create a "result" to add to the message history
+                            print(f"Tool error: {e}")
                             result = f"Error: {e}"
 
                         # Append tool call result to messages... note the role is "tool" and provide "tool_name", also

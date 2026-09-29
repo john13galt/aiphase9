@@ -12,7 +12,6 @@ from transformers import AutoTokenizer
 
 # import torchvision
 import time
-from datetime import datetime
 # from torchvision.datasets import MNIST
 # from torchvision import transforms
 # from torch.utils.data import DataLoader

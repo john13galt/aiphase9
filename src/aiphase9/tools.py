@@ -1,7 +1,11 @@
-# This file contains all my agent tools.  It has 3 sections
+# This file contains all my agent tools.  It has 4 sections
+#       Section 0:  Imports needed for the tools
 #       Section 1:  Tool functions
 #       Section 2:  Tool registry (dict of name-functions pairs)
 #       Section 3:  Tool schema - list of dicts, with a dict for each tool
+
+# ----------- Section 0:  Imports -----------
+from datetime import datetime
 
 # ----------- Section 1:  Tool functions -----------
 def calculator(a, b, operation):

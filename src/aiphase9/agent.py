@@ -29,9 +29,11 @@ print("--------------------------------------------------------")
 #        tool_registry (dict of function_name_string -> function pairs)
 #        tool_list (list of dicts containing a schema for all my tool functions)
 
-def start_agent(tool_registry, tool_list, CONTEXTWINDOW):
+def start_agent(tool_registry, tool_list, memory, CONTEXTWINDOW):
     # start a fresh conversation history
     messages = []
+    # add memory to message history <probably not the real way to do this>
+    messages.append({"memory": str(memory)})
     # Prompt loop... keep prompting the user until they say "/bye"
     while True:
         # Get user input
@@ -86,9 +88,7 @@ def start_agent(tool_registry, tool_list, CONTEXTWINDOW):
                         # really shouldn't get here.  It should only call tools I defined
                         print("illegal function")
                         break
-
-CONTEXTWINDOW = 8192
-start_agent(tools.tool_registry, tools.tool_list, CONTEXTWINDOW)
+    return memory
 
 
 print("\n")
@@ -114,3 +114,12 @@ def save_memory(memory):
     with open(MEMORY_FILE, "w") as f:
         json.dump(memory, f, indent=2)
 
+memory = load_memory()
+memory["user_name"] = "Matthew"
+memory["favorite_color"] = "green"
+
+
+CONTEXTWINDOW = 8192
+memory = start_agent(tools.tool_registry, tools.tool_list, memory, CONTEXTWINDOW)
+
+save_memory(memory)

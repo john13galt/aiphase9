@@ -33,7 +33,7 @@ def start_agent(tool_registry, tool_list, memory, CONTEXTWINDOW):
     # start a fresh conversation history
     messages = []
     # add memory to message history <probably not the real way to do this>
-    messages.append({"memory": str(memory)})
+    messages.append({"role": "tool", "content": str(memory)})
     # Prompt loop... keep prompting the user until they say "/bye"
     while True:
         # Get user input

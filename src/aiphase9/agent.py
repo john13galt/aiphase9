@@ -97,7 +97,7 @@ print("--------------------------------------------------------")
 # saves a dict "memory" into a json file
 def save_memory(memory):
 
-    with open(MEMORY_FILE, "w") as f:
+    with open(tools.MEMORY_FILE, "w") as f:
         json.dump(memory, f, indent=2)
 
 memory = {}

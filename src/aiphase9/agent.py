@@ -100,6 +100,7 @@ def save_memory(memory):
     with open(MEMORY_FILE, "w") as f:
         json.dump(memory, f, indent=2)
 
+memory = {}
 memory["name"] = "Matthew"
 memory["color"] = "green"
 memory["gpu"] = "RTX 5060"

@@ -29,11 +29,9 @@ print("--------------------------------------------------------")
 #        tool_registry (dict of function_name_string -> function pairs)
 #        tool_list (list of dicts containing a schema for all my tool functions)
 
-def start_agent(tool_registry, tool_list, memory, CONTEXTWINDOW):
+def start_agent(tool_registry, tool_list, CONTEXTWINDOW):
     # start a fresh conversation history
     messages = []
-    # add memory to message history <probably not the real way to do this>
-    messages.append({"role": "tool", "content": str(memory)})
     # Prompt loop... keep prompting the user until they say "/bye"
     while True:
         # Get user input
@@ -88,7 +86,6 @@ def start_agent(tool_registry, tool_list, memory, CONTEXTWINDOW):
                         # really shouldn't get here.  It should only call tools I defined
                         print("illegal function")
                         break
-    return memory
 
 
 print("\n")
@@ -96,17 +93,6 @@ print("--------------------------------------------------------")
 print("-"*10, "Lesson 60 - Memory", "-"*10)
 print("--------------------------------------------------------")
 
-MEMORY_FILE = "memory.json"
-
-# opens a json file and creates a dict from it
-def load_memory():
-
-    if os.path.exists(MEMORY_FILE):
-
-        with open(MEMORY_FILE, "r") as f:
-            return json.load(f)
-
-    return {}
 
 # saves a dict "memory" into a json file
 def save_memory(memory):
@@ -114,12 +100,12 @@ def save_memory(memory):
     with open(MEMORY_FILE, "w") as f:
         json.dump(memory, f, indent=2)
 
-memory = load_memory()
-memory["user_name"] = "Matthew"
-memory["favorite_color"] = "green"
-
+memory["name"] = "Matthew"
+memory["color"] = "green"
+memory["gpu"] = "RTX 5060"
+memory["car"] = "BMW 530e"
+save_memory(memory)
 
 CONTEXTWINDOW = 8192
-memory = start_agent(tools.tool_registry, tools.tool_list, memory, CONTEXTWINDOW)
+start_agent(tools.tool_registry, tools.tool_list, CONTEXTWINDOW)
 
-save_memory(memory)

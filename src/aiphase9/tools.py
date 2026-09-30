@@ -23,10 +23,32 @@ def calculator(a, b, operation):
 def get_time():
     return f"The current time is {datetime.now().time()}."
 
+# this next information is not an actual tool, but a helper function for the recall_memory tool
+MEMORY_FILE = "memory.json"
+def load_memory():
+    # opens a json file and creates a dict from it
+    if os.path.exists(MEMORY_FILE):
+        with open(MEMORY_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def recall_memory(query):
+    memory = load(memory)
+    results = []
+    query_words = query.lower().split()
+    for key, value in memory.items():
+        text = f"{key} {value}".lower()
+        for word in query_words:
+            if word in text:
+                results.append((key, value))
+                break
+    return results
+
 # ----------- Section 2:  Tool registry -----------
 tool_registry = {
     "calculator": calculator,
     "get_time": get_time,
+    "recall_memory": recall_memory
 }
 
 # ----------- Section 3:  Tool schema -----------
@@ -72,6 +94,23 @@ tool_list = [
                 "type": "object",
                 "properties": {},
                 "required": []
+            }
+        }
+    }
+    {
+        "type": "function",
+        "function": {
+            "name": "recall_memory",
+            "description": "Use this function to query a persistent memory with facts about the user, such as facts from a previous conversation.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "A description of the information you want to find in memory."
+                    },
+                },
+                "required": ["query"]
             }
         }
     }

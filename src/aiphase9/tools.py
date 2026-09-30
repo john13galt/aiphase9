@@ -96,7 +96,7 @@ tool_list = [
                 "required": []
             }
         }
-    }
+    },
     {
         "type": "function",
         "function": {
@@ -113,5 +113,5 @@ tool_list = [
                 "required": ["query"]
             }
         }
-    }
+    },
 ]

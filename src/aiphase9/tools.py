@@ -7,6 +7,7 @@
 # ----------- Section 0:  Imports -----------
 from datetime import datetime
 import os
+import json
 
 # ----------- Section 1:  Tool functions -----------
 def calculator(a, b, operation):
@@ -34,7 +35,7 @@ def load_memory():
     return {}
 
 def recall_memory(query):
-    memory = load(memory)
+    memory = load_memory(memory)
     results = []
     query_words = query.lower().split()
     for key, value in memory.items():

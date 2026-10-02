@@ -68,7 +68,7 @@ def start_agent(tool_registry, tool_list, CONTEXTWINDOW):
                         # call the tool... inside a "try-except" to catch errors
                         try: 
                             # Call the tool (use the registry  to find tools)
-                            print("Tool arguments: ", tool_call.function.arguments)
+                            print(f"Tool call: {tool_call.function.name}: {tool_call.function.arguments}")
                             result = tool_registry[tool_call.function.name](**(tool_call.function.arguments))
                             print("Tool result: ", result)
                         except Exception as e:

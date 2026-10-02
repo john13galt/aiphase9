@@ -36,8 +36,10 @@ def load_memory():
 
 def recall_memory(query):
     memory = load_memory()
+    print(memory)
     results = []
     query_words = query.lower().split()
+    print(query_words)
     for key, value in memory.items():
         text = f"{key} {value}".lower()
         for word in query_words:

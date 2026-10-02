@@ -6,6 +6,7 @@
 
 # ----------- Section 0:  Imports -----------
 from datetime import datetime
+import os
 
 # ----------- Section 1:  Tool functions -----------
 def calculator(a, b, operation):

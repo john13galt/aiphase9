@@ -44,7 +44,7 @@ def start_agent(tool_registry, tool_list, CONTEXTWINDOW):
         # now start another loop to process the prompt... keep looping until we stop getting tool calls
         while True:
             # call cat with messages and send it "tools"
-            response = chat(model="qwen3:0.6b", 
+            response = chat(model="llama3.1:8b", 
                             messages=messages, 
                             options={"num_ctx":CONTEXTWINDOW},
                             tools=tool_list,

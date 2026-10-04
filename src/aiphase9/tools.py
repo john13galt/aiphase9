@@ -50,10 +50,10 @@ embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 # Older version - uses a dict memory
 def recall_memory_old(query):
     memory = load_memory()
-    print(memory)
+    # print(memory)
     results = []
     query_words = query.lower().split()
-    print(query_words)
+    # print(query_words)
     for key, value in memory.items():
         text = f"{key} {value}".lower()
         for word in query_words:
@@ -65,11 +65,11 @@ def recall_memory_old(query):
 def recall_memory(query):
     # read memories from a text file
     memories = load_memories()
-    print(len(memories))
+    # print(len(memories))
     # print(memory)
     # create embeddings for all memories (use sentence embeddings)
     memory_embeddings = embedding_model.encode(memories)
-    print(memory_embeddings.shape)
+    # print(memory_embeddings.shape)
     # create embeddings for the query
     query_embeddings = embedding_model.encode(query)
     # calculate similarities - use "cosine similarity"
@@ -78,7 +78,7 @@ def recall_memory(query):
     )
     # get the highest similarity
     best = np.argmax(similarities)
-    print(memories[best])
+    # print(memories[best])
     return memories[best]
 
 # ----------- Section 2:  Tool registry -----------

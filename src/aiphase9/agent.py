@@ -119,7 +119,8 @@ print("--------------------------------------------------------")
 
 def save_memories(memories):
     with open(tools.MEMORIES_FILE, "w") as f:
-        f.writelines(memories)
+        for memory in memories:
+            f.write(f"{memory}\n")
 
 memories = [
     "Matthew's name is Matthew.",
@@ -128,6 +129,17 @@ memories = [
     "Matthew uses an NVIDIA RTX 5060 GPU."
 ]
 save_memories(memories)
+
+'''
+def load_memories():
+    # opens a text file with memory sentences, one per line
+    if os.path.exists(tools.MEMORIES_FILE):
+        with open(tools.MEMORIES_FILE, "r") as f:
+            return [line.strip() for line in f]
+    return []
+
+memories = load_memories()
+'''
 
 # Now, we're going to make the memory use embeddings to do semantic match instead of keyword lookup
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")

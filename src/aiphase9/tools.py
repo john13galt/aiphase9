@@ -41,7 +41,7 @@ def load_memories():
     # opens a text file with memory sentences, one per line
     if os.path.exists(MEMORIES_FILE):
         with open(MEMORIES_FILE, "r") as f:
-            return f.readlines()
+            return [line.strip() for line in f]
     return []
 
 # Now, we're going to make the memory use embeddings to do semantic match instead of keyword lookup

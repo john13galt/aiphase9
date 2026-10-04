@@ -76,7 +76,7 @@ def recall_memory(query):
     )
     # get the highest similarity
     best = np.argmax(similarities)
-    print(best)
+    print(memories[best])
     return memories[best]
 
 # ----------- Section 2:  Tool registry -----------

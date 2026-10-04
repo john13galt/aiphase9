@@ -6,7 +6,7 @@ import json
 #import torch.nn.functional as F
 #from safetensors.torch import save_file, load_file
 #from safetensors import safe_open
-#from ollama import chat
+from ollama import chat
 from transformers import AutoTokenizer
 from sentence_transformers import SentenceTransformer
 

@@ -6,9 +6,9 @@ import json
 #import torch.nn.functional as F
 #from safetensors.torch import save_file, load_file
 #from safetensors import safe_open
-from ollama import chat
+#from ollama import chat
 from transformers import AutoTokenizer
-
+from sentence_transformers import SentenceTransformer
 
 # import torchvision
 import time
@@ -99,7 +99,7 @@ def save_memory(memory):
 
     with open(tools.MEMORY_FILE, "w") as f:
         json.dump(memory, f, indent=2)
-
+        
 memory = {}
 memory["name"] = "Matthew"
 memory["color"] = "green"
@@ -107,6 +107,47 @@ memory["gpu"] = "RTX 5060"
 memory["car"] = "BMW 530e"
 save_memory(memory)
 
-CONTEXTWINDOW = 8192
-start_agent(tools.tool_registry, tools.tool_list, CONTEXTWINDOW)
 
+CONTEXTWINDOW = 8192
+# start_agent(tools.tool_registry, tools.tool_list, CONTEXTWINDOW)
+
+
+print("\n")
+print("--------------------------------------------------------")
+print("-"*10, "Lesson 61 - Symantic Search of Memory with Embeddings", "-"*10)
+print("--------------------------------------------------------")
+
+def save_memories(memories):
+    with open(tools.MEMORIES_FILE, "w") as f:
+        f.writelines(memories)
+
+memories = [
+    "Matthew's name is Matthew.",
+    "Matthew's favorite color is green.",
+    "Matthew drives a BMW 530e.",
+    "Matthew uses an NVIDIA RTX 5060 GPU."
+]
+save_memories(memories)
+
+# Now, we're going to make the memory use embeddings to do semantic match instead of keyword lookup
+embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+memory_embeddings = embedding_model.encode(memories)
+print(memory_embeddings.shape)
+
+query = "What kind of computer hardware do I use?"
+query_embeddings = embedding_model.encode(query)
+
+similarities = memory_embeddings @ query_embeddings / (
+    np.linalg.norm(memory_embeddings, axis=1) * np.linalg.norm(query_embeddings)
+)
+
+for memory, score in zip(memories, similarities):
+    print(f"{score}: {memory}")
+
+best = np.argmax(similarities)
+print(f"Best = {memories[best]}")
+print()
+print()
+
+start_agent(tools.tool_registry, tools.tool_list, CONTEXTWINDOW)

@@ -8,6 +8,8 @@
 from datetime import datetime
 import os
 import json
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
 # ----------- Section 1:  Tool functions -----------
 def calculator(a, b, operation):
@@ -27,6 +29,7 @@ def get_time():
 
 # this next information is not an actual tool, but a helper function for the recall_memory tool
 MEMORY_FILE = "memory.json"
+MEMORIES_FILE = "memories.txt"
 def load_memory():
     # opens a json file and creates a dict from it
     if os.path.exists(MEMORY_FILE):
@@ -34,7 +37,18 @@ def load_memory():
             return json.load(f)
     return {}
 
-def recall_memory(query):
+def load_memories():
+    # opens a text file with memory sentences, one per line
+    if os.path.exists(MEMORIES_FILE):
+        with open(MEMORIES_FILE, "r") as f:
+            return f.readlines()
+    return []
+
+# Now, we're going to make the memory use embeddings to do semantic match instead of keyword lookup
+embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Older version - uses a dict memory
+def recall_memory_old(query):
     memory = load_memory()
     print(memory)
     results = []
@@ -47,6 +61,22 @@ def recall_memory(query):
                 results.append((key, value))
                 break
     return results
+
+def recall_memory(query):
+    # read memories from a text file
+    memories = load_memories()
+    # print(memory)
+    # create embeddings for all memories (use sentence embeddings)
+    memory_embeddings = embedding_model.encode(memories)
+    # create embeddings for the query
+    query_embeddings = embedding_model.encode(query)
+    # calculate similarities - use "cosine similarity"
+    similarities = memory_embeddings @ query_embeddings / (
+        np.linalg.norm(memory_embeddings, axis=1) * np.linalg.norm(query_embeddings)
+    )
+    # get the highest similarity
+    best = np.argmax(similarities)
+    return memories[best]
 
 # ----------- Section 2:  Tool registry -----------
 tool_registry = {

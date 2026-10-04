@@ -65,9 +65,11 @@ def recall_memory_old(query):
 def recall_memory(query):
     # read memories from a text file
     memories = load_memories()
+    print(len(memories))
     # print(memory)
     # create embeddings for all memories (use sentence embeddings)
     memory_embeddings = embedding_model.encode(memories)
+    print(memory_embeddings.shape)
     # create embeddings for the query
     query_embeddings = embedding_model.encode(query)
     # calculate similarities - use "cosine similarity"

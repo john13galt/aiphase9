@@ -37,17 +37,31 @@ def load_memory():
             return json.load(f)
     return {}
 
-def load_memories():
+def load_memories(MEMORIES_FILE):
     # opens a text file with memory sentences, one per line
     if os.path.exists(MEMORIES_FILE):
         with open(MEMORIES_FILE, "r") as f:
             return [line.strip() for line in f]
     return []
 
-# Now, we're going to make the memory use embeddings to do semantic match instead of keyword lookup
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+# Now, we're going to make a memory class to use embeddings to do semantic match instead of keyword lookup
+class SemanticMemory:
+    def __init__(self, memoryfile, embedding_model):
+        self.memories = load_memories(memoryfile)
+        self.embedding_model = embedding_model
+        self.embeddings = self.embedding_model.encode(self.memories, normalize_embeddings=True)
+
+    def search(self, query, topk = 3):
+        query_embeddings = self.embedding_model.encode(query)
+        similarities = self.embeddings @ query_embeddings # this is just like attention!
+        # get the top"k" number of semantic match results... returns indeces, sorted smallest to largest
+        indeces = np.argsort(similarities)[-topk:]
+        # returns a list of tuples.  Each tuple is a memory and the degree of similarity (a float)
+        return [(self.memories[i], float(similarities[i])) for i in indeces]
+
 
 # Older version - uses a dict memory
+'''
 def recall_memory_old(query):
     memory = load_memory()
     # print(memory)
@@ -61,25 +75,24 @@ def recall_memory_old(query):
                 results.append((key, value))
                 break
     return results
+'''
+    
+# Newer version - uses the SemanticMemory class
+# Get sentence tranferor
+embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+# Make a memory object
+memory = SemanticMemory(MEMORIES_FILE, embedding_model)
 
-def recall_memory(query):
-    # read memories from a text file
-    memories = load_memories()
-    # print(len(memories))
-    # print(memory)
-    # create embeddings for all memories (use sentence embeddings)
-    memory_embeddings = embedding_model.encode(memories)
-    # print(memory_embeddings.shape)
-    # create embeddings for the query
-    query_embeddings = embedding_model.encode(query)
-    # calculate similarities - use "cosine similarity"
-    similarities = memory_embeddings @ query_embeddings / (
-        np.linalg.norm(memory_embeddings, axis=1) * np.linalg.norm(query_embeddings)
-    )
-    # get the highest similarity
-    best = np.argmax(similarities)
-    # print(memories[best])
-    return memories[best]
+# This function makes a "recall_memory" function with my memory object embedded in it!
+def make_recall_memory(memory):
+    # Create the function
+    def recall_memory(query):
+        return memory.search(query, topk=3)
+    # and return it
+    return recall_memory
+
+# Then this creates an instance of my funciton with my specific memory
+recall_memory = make_recall_memory(memory)
 
 # ----------- Section 2:  Tool registry -----------
 tool_registry = {

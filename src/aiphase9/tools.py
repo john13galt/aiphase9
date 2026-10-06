@@ -86,12 +86,14 @@ class SemanticMemory:
     def search(self, query, topk = 3):
         query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)
         memory_embeddings = [memory["embedding"] for memory in self.memories]
-        similarities = memory_embeddings @ query_embeddings # this is just like attention!
-        # get the top"k" number of semantic match results... returns indeces, sorted smallest to largest
-        indeces = np.argsort(similarities)[-topk:]
-        # returns a list of tuples.  Each tuple is a memory and the degree of similarity (a float)
-        return [(self.memories[i]["text"], float(similarities[i])) for i in indeces]
-
+        if memory_embeddings:
+            similarities = memory_embeddings @ query_embeddings # this is just like attention!
+            # get the top"k" number of semantic match results... returns indeces, sorted smallest to largest
+            indeces = np.argsort(similarities)[-topk:]
+            # returns a list of tuples.  Each tuple is a memory and the degree of similarity (a float)
+            return [(self.memories[i]["text"], float(similarities[i])) for i in indeces]
+        else:
+            return []
 
 '''  # Older version - uses a dict memory
 def recall_memory_old(query):
@@ -140,7 +142,8 @@ save_memory = make_save_memory(memory)
 tool_registry = {
     "calculator": calculator,
     "get_time": get_time,
-    "recall_memory": recall_memory
+    "recall_memory": recall_memory,
+    "save_memory": save_memory,
 }
 
 # ----------- Section 3:  Tool schema -----------

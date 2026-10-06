@@ -125,7 +125,7 @@ def make_recall_memory(memory):
 recall_memory = make_recall_memory(memory)
 
 # similarly, this functions makes a save_memory function with my memory objsect embedded
-def make_save_memory(memory)
+def make_save_memory(memory):
     def save_memory(text):
         return memory.add(text)
     # and return it

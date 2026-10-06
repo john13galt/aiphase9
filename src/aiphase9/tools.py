@@ -81,7 +81,7 @@ class SemanticMemory:
 
     def add(self, memory):
         self.memories.append({"text": memory, 
-                              "embedding": self.embedding_model.encode(self.memory, normalize_embeddings=True)})
+                              "embedding": self.embedding_model.encode(memory, normalize_embeddings=True)})
 
     def search(self, query, topk = 3):
         query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)

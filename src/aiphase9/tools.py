@@ -30,38 +30,68 @@ def get_time():
 # this next information is not an actual tool, but a helper function for the recall_memory tool
 MEMORY_FILE = "memory.json"
 MEMORIES_FILE = "memories.txt"
+NEW_MEMORIES_FILE = "new_memories.json"
+
+''' # old vesion, simple dict
 def load_memory():
     # opens a json file and creates a dict from it
     if os.path.exists(MEMORY_FILE):
         with open(MEMORY_FILE, "r") as f:
             return json.load(f)
     return {}
+'''
 
+''' # old version, simple list of strings
 def load_memories(MEMORIES_FILE):
     # opens a text file with memory sentences, one per line
     if os.path.exists(MEMORIES_FILE):
         with open(MEMORIES_FILE, "r") as f:
-            return [line.strip() for line in f]
+            lines = [line.strip() for line in f]
+            return []
+    return []
+'''
+
+# Now, memories is a list of dicts.  Each dict contains two entries:
+#       "text":  the raw sentence text
+#       "embeddings":  The list of floats (len=384) for embeddings
+def load_memories():
+    # opens a json file and creates a dict from it
+    if os.path.exists(NEW_MEMORIES_FILE):
+        with open(NEW_MEMORIES_FILE, "r") as f:
+            return json.load(f)
     return []
 
+def write_memories(memories):
+    with open(tools.NEW_MEMORIES_FILE, "w") as f:
+        json.dump(memories, f, indent=2)
+    
 # Now, we're going to make a memory class to use embeddings to do semantic match instead of keyword lookup
 class SemanticMemory:
     def __init__(self, memoryfile, embedding_model):
         self.memories = load_memories(memoryfile)
         self.embedding_model = embedding_model
-        self.embeddings = self.embedding_model.encode(self.memories, normalize_embeddings=True)
+        # no longer need to do this... I create embeddings when I add 
+        # self.embeddings = self.embedding_model.encode(self.memories, normalize_embeddings=True)
+
+    def __del__(self):
+        print(f"Saving memories to {NEW_MEMORIES_FILE}")
+        write_memories()
+
+    def add(self, memory):
+        self.memories.append({"text": memory, 
+                              "embedding": self.embedding_model.encode(self.memory, normalize_embeddings=True)})
 
     def search(self, query, topk = 3):
-        query_embeddings = self.embedding_model.encode(query)
-        similarities = self.embeddings @ query_embeddings # this is just like attention!
+        query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)
+        memory_embeddings = [memory["embedding"] for memory in self.memories]
+        similarities = memory_embeddings @ query_embeddings # this is just like attention!
         # get the top"k" number of semantic match results... returns indeces, sorted smallest to largest
         indeces = np.argsort(similarities)[-topk:]
         # returns a list of tuples.  Each tuple is a memory and the degree of similarity (a float)
-        return [(self.memories[i], float(similarities[i])) for i in indeces]
+        return [(self.memories[i]["text"], float(similarities[i])) for i in indeces]
 
 
-# Older version - uses a dict memory
-'''
+'''  # Older version - uses a dict memory
 def recall_memory_old(query):
     memory = load_memory()
     # print(memory)
@@ -93,6 +123,16 @@ def make_recall_memory(memory):
 
 # Then this creates an instance of my funciton with my specific memory
 recall_memory = make_recall_memory(memory)
+
+# similarly, this functions makes a save_memory function with my memory objsect embedded
+def make_save_memory(memory)
+    def save_memory(text):
+        return memory.add(text)
+    # and return it
+    return save_memory
+
+# Then this creates the instance for me to call
+save_memory = make_save_memory(memory)
 
 # ----------- Section 2:  Tool registry -----------
 tool_registry = {
@@ -161,6 +201,23 @@ tool_list = [
                     },
                 },
                 "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "save_memory",
+            "description": "Use this function to store important information in a long-term persistent memory that lasts between chat sessions.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "A description of the information you want to store in memory."
+                    },
+                },
+                "required": ["text"]
             }
         }
     },

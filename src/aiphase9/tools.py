@@ -54,28 +54,30 @@ def load_memories(MEMORIES_FILE):
 # Now, memories is a list of dicts.  Each dict contains two entries:
 #       "text":  the raw sentence text
 #       "embeddings":  The list of floats (len=384) for embeddings
-def load_memories():
+def load_memories(filename):
     # opens a json file and creates a dict from it
-    if os.path.exists(NEW_MEMORIES_FILE):
-        with open(NEW_MEMORIES_FILE, "r") as f:
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
             return json.load(f)
     return []
 
-def write_memories(memories):
-    with open(tools.NEW_MEMORIES_FILE, "w") as f:
+def write_memories(memories, memoryfile):
+    with open(memoryfile, "w") as f:
         json.dump(memories, f, indent=2)
     
 # Now, we're going to make a memory class to use embeddings to do semantic match instead of keyword lookup
 class SemanticMemory:
     def __init__(self, memoryfile, embedding_model):
+        self.memoryfile = memoryfile
         self.memories = load_memories(memoryfile)
+        print(f"Read {len(self.memories)} memories from {memoryfile}")
         self.embedding_model = embedding_model
         # no longer need to do this... I create embeddings when I add 
         # self.embeddings = self.embedding_model.encode(self.memories, normalize_embeddings=True)
 
     def __del__(self):
-        print(f"Saving memories to {NEW_MEMORIES_FILE}")
-        write_memories()
+        print(f"Saving memories to {self.memoryfile}")
+        write_memories(self.memories, self.memoryfile)
 
     def add(self, memory):
         self.memories.append({"text": memory, 
@@ -111,7 +113,7 @@ def recall_memory_old(query):
 # Get sentence tranferor
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 # Make a memory object
-memory = SemanticMemory(MEMORIES_FILE, embedding_model)
+memory = SemanticMemory(NEW_MEMORIES_FILE, embedding_model)
 
 # This function makes a "recall_memory" function with my memory object embedded in it!
 def make_recall_memory(memory):

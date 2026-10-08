@@ -7,7 +7,8 @@
 # ----------- Section 0:  Imports -----------
 from datetime import datetime
 import os
-import json
+# using json_tricks instead of json to handle the numpy array in my data struction
+import json_tricks
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
@@ -58,12 +59,12 @@ def load_memories(filename):
     # opens a json file and creates a dict from it
     if os.path.exists(filename):
         with open(filename, "r") as f:
-            return json.load(f)
+            return json_tricks.load(f)
     return []
 
 def write_memories(memories, memoryfile):
     with open(memoryfile, "w") as f:
-        json.dump(memories, f, indent=2)
+        json_tricks.dump(memories, f, indent=2)
     
 # Now, we're going to make a memory class to use embeddings to do semantic match instead of keyword lookup
 class SemanticMemory:
@@ -74,11 +75,6 @@ class SemanticMemory:
         self.embedding_model = embedding_model
         # no longer need to do this... I create embeddings when I add 
         # self.embeddings = self.embedding_model.encode(self.memories, normalize_embeddings=True)
-
-    # final write_memories (though I do it after every add)
-    def __del__(self, open=open):
-        print(f"Saving memories to {self.memoryfile}")
-        write_memories(self.memories, self.memoryfile)
 
     # append new memory to memories and save it to disk
     def add(self, memory):

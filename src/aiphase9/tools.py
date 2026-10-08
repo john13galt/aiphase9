@@ -75,24 +75,33 @@ class SemanticMemory:
         # no longer need to do this... I create embeddings when I add 
         # self.embeddings = self.embedding_model.encode(self.memories, normalize_embeddings=True)
 
-    def __del__(self):
+    # final write_memories (though I do it after every add)
+    def __del__(self, open=open):
         print(f"Saving memories to {self.memoryfile}")
         write_memories(self.memories, self.memoryfile)
 
+    # append new memory to memories and save it to disk
     def add(self, memory):
         self.memories.append({"text": memory, 
                               "embedding": self.embedding_model.encode(memory, normalize_embeddings=True)})
+        write_memories(self.memories, self.memoryfile)
 
+    # Use sementic search (using embeddings) to find an item in memory
     def search(self, query, topk = 3):
+        # Create embeddings for new query
         query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)
+        # Get a list of just the embeddings out of the memory
         memory_embeddings = [memory["embedding"] for memory in self.memories]
+        # If there are memories...
         if memory_embeddings:
+            # Calculate the semantic similarity of each memory with the query
             similarities = memory_embeddings @ query_embeddings # this is just like attention!
-            # get the top"k" number of semantic match results... returns indeces, sorted smallest to largest
+            # get the top"k" number of best semantic match results... returns indeces, sorted smallest to largest
             indeces = np.argsort(similarities)[-topk:]
             # returns a list of tuples.  Each tuple is a memory and the degree of similarity (a float)
             return [(self.memories[i]["text"], float(similarities[i])) for i in indeces]
         else:
+            # otherwise, return an empty list
             return []
 
 '''  # Older version - uses a dict memory

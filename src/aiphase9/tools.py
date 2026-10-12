@@ -255,7 +255,11 @@ tool_list = [
 ]
 
 def main():
-    print(memory.find_similar("My name is Matthew"))
+
+    userinput = ""
+    while userinput != "/bye"
+        userinput = "Check this in memory: "
+        print(memory.find_similar(userinput))
 
 if __name__ == "__main__":
     main()

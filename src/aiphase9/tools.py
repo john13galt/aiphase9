@@ -258,7 +258,7 @@ def main():
 
     userinput = ""
     while userinput != "/bye":
-        userinput = "Check this in memory: "
+        userinput = input("Check this in memory: ")
         print(memory.find_similar(userinput))
 
 if __name__ == "__main__":

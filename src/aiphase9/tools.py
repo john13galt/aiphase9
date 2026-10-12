@@ -100,7 +100,7 @@ class SemanticMemory:
             # otherwise, return an empty list
             return []
 
-    def find_similar(self, query, threshold = 0.90):
+    def find_similar(self, query, threshold = 0.70):
         # Create embeddings for new query
         query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)
         # Get a list of just the embeddings out of the memory

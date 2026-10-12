@@ -109,15 +109,17 @@ class SemanticMemory:
         if memory_embeddings:
             # Calculate the semantic similarity of each memory with the query
             similarities = memory_embeddings @ query_embeddings # this is just like attention!
+            print(similarities)
             # get the top"k" number of best semantic match results... returns indeces, sorted smallest to largest
             index = np.argmax(similarities)
+            print(index)
             # if the highest similarity is greater than my threshold
             if similarities[index] > threshold:
                 # return it, and the similarity score
-                return (self.memories[i]["text"], float(similarities[i]))
+                return (self.memories[index]["text"], float(similarities[index]))
             else:
                 # otherwise, return an empty list
-                return []
+                return ()
 
 '''  # Older version - uses a dict memory
 def recall_memory_old(query):

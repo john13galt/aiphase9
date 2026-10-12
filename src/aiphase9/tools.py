@@ -255,7 +255,7 @@ tool_list = [
 ]
 
 def main():
-    print(memory.find_similar("You can call me Matthew"))
+    print(memory.find_similar("My name is Matthew"))
 
 if __name__ == "__main__":
     main()

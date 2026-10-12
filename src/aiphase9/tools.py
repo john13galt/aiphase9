@@ -257,7 +257,7 @@ tool_list = [
 def main():
 
     userinput = ""
-    while userinput != "/bye"
+    while userinput != "/bye":
         userinput = "Check this in memory: "
         print(memory.find_similar(userinput))
 

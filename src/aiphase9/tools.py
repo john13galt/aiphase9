@@ -100,6 +100,25 @@ class SemanticMemory:
             # otherwise, return an empty list
             return []
 
+    def find_similar(self, query, threshold = 0.90):
+        # Create embeddings for new query
+        query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)
+        # Get a list of just the embeddings out of the memory
+        memory_embeddings = [memory["embedding"] for memory in self.memories]
+        # If there are memories...
+        if memory_embeddings:
+            # Calculate the semantic similarity of each memory with the query
+            similarities = memory_embeddings @ query_embeddings # this is just like attention!
+            # get the top"k" number of best semantic match results... returns indeces, sorted smallest to largest
+            index = np.argmax(similarities)
+            # if the highest similarity is greater than my threshold
+            if similarities[index] > threshold:
+                # return it, and the similarity score
+                return (self.memories[i]["text"], float(similarities[i]))
+            else:
+                # otherwise, return an empty list
+                return []
+
 '''  # Older version - uses a dict memory
 def recall_memory_old(query):
     memory = load_memory()
@@ -164,11 +183,11 @@ tool_list = [
                 "properties": {
                     "a": {
                         "type": "number",
-                        "description": "The first number."
+                        "description": "The first number. Must be a numeric value, not a string."
                     },
                     "b": {
                         "type": "number",
-                        "description": "The second number."
+                        "description": "The second number. Must be a numeric value, not a string"
                     },
                     "operation": {
                         "type": "string",
@@ -189,7 +208,7 @@ tool_list = [
         "type": "function",
         "function": {
             "name": "get_time",
-            "description": "Get the current time.  Use this tool whenever the user asks for the current time.",
+            "description": "Get the current time.  Use this tool whenever the user asks for the current time.  Make sure to return the time to the user and not just tell them it depends on the system clock.",
             "parameters": {
                 "type": "object",
                 "properties": {},
@@ -218,7 +237,7 @@ tool_list = [
         "type": "function",
         "function": {
             "name": "save_memory",
-            "description": "Use this function to store important information in a long-term persistent memory that lasts between chat sessions.",
+            "description": "Use this function to store important information in a long-term persistent memory that lasts between chat sessions.  Store a concise, self-contained statement of a durable fact about the user. Include enough context that the memory makes sense when retrieved later. Do not store conversational filler.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -232,3 +251,9 @@ tool_list = [
         }
     },
 ]
+
+def main():
+    print(memory.find_similar("You can call me Matthew"))
+
+if __name__ == "__main__":
+    main()

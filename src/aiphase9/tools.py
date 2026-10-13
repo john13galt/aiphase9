@@ -10,6 +10,7 @@ import os
 # using json_tricks instead of json to handle the numpy array in my data struction
 import json_tricks
 import json
+from ollama import chat
 from sentence_transformers import SentenceTransformer
 import numpy as np
 

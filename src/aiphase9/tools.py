@@ -9,6 +9,7 @@ from datetime import datetime
 import os
 # using json_tricks instead of json to handle the numpy array in my data struction
 import json_tricks
+import json
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
@@ -52,10 +53,11 @@ def load_memories(MEMORIES_FILE):
     return []
 '''
 
-# Now, memories is a list of dicts.  Each dict contains two entries:
-#       "text":  the raw sentence text
-#       "embeddings":  The list of floats (len=384) for embeddings
 def load_memories(filename):
+    """ Now, memories is a list of dicts.  Each dict contains two entries:
+           "text":  the raw sentence text
+           "embeddings":  The list of floats (len=384) for embeddings
+    """
     # opens a json file and creates a dict from it
     if os.path.exists(filename):
         with open(filename, "r") as f:
@@ -63,9 +65,67 @@ def load_memories(filename):
     return []
 
 def write_memories(memories, memoryfile):
+    """ Function to write memories to a file"""
     with open(memoryfile, "w") as f:
         json_tricks.dump(memories, f, indent=2)
-    
+
+def classify_memory(new_memory, existing_memories):
+    """ This is cool.  We use a separate ollama chat call to perform an function.
+           Instead of writing code, we let the model figure it out.
+           Works by creating a detailed prompt telling the model what we want
+           it to do and what we want it to return.
+           Note that new_memory is a string and existing_memories is a list of strings (no embeddings)
+    """
+    prompt = f"""
+You are evaluating a proposed long-term memory.
+
+NEW MEMORY:
+{new_memory}
+
+EXISTING MEMORIES:
+{json.dumps(existing_memories, indent=2)}
+
+Classify the relationship between the new memory and the
+existing memories.
+
+Use exactly one classification:
+
+DUPLICATE:
+The NEW MEMORY expresses the same fact as an EXISTING MEMORY,
+possibly with different wording.
+
+UPDATE:
+The NEW MEMORY explicitly corrects, replaces, or supersedes
+an EXISTING MEMORY.
+
+DISTINCT:
+The NEW MEMORY is related to an EXISTING MEMORY but expresses
+a separate fact that should be retained independently.
+
+NEW:
+No EXISTING MEMORY is meaningfully related to
+the NEW MEMORY.
+
+If the NEW MEMORY conflicts with an EXISTING MEMORY but it is
+unclear whether the new information supersedes the old information,
+do not assume an update. Prefer DISTINCT and explain the ambiguity.
+
+Return only a JSON object with these fields:
+- classification: exactly one of DUPLICATE, UPDATE, DISTINCT, NEW
+- existing_memory: the exact EXISTING MEMORY being duplicated
+  or updated, or null if none
+- reason: a short explanation
+"""
+
+    # Here's where we call the chat with the big prompt I made
+    response = chat(
+        model="llama3.1:8b",
+        messages=[{"role": "user", "content": prompt}],
+        format="json"
+    )
+    # json.loads converts a json formatted string into a dict object
+    return json.loads(response.message.content)
+
 # Now, we're going to make a memory class to use embeddings to do semantic match instead of keyword lookup
 class SemanticMemory:
     def __init__(self, memoryfile, embedding_model):
@@ -256,10 +316,19 @@ tool_list = [
 
 def main():
 
+    test_memories = [
+        "The user's name is Matthew.",
+        "The user's favorite color is green.",
+        "The user's car is a BMW 530e.",
+        "The user lives in Texas."
+    ]
+
+    print(test_memories)
     userinput = ""
     while userinput != "/bye":
         userinput = input("Check this in memory: ")
-        print(memory.find_similar(userinput))
+        result = classify_memory(userinput, test_memories)
+        print(result)
 
 if __name__ == "__main__":
     main()

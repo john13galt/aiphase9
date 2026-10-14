@@ -92,24 +92,29 @@ existing memories.
 Use exactly one classification:
 
 DUPLICATE:
-The NEW MEMORY expresses the same fact as an EXISTING MEMORY,
-possibly with different wording.
+Use only when the NEW MEMORY expresses substantially the same
+factual claim as an EXISTING MEMORY.
 
 UPDATE:
-The NEW MEMORY explicitly corrects, replaces, or supersedes
-an EXISTING MEMORY.
+Use only when the NEW MEMORY explicitly corrects, replaces, or 
+supersedes an EXISTING MEMORY.
+
+A related subject matter is not sufficient.  A new preference 
+does not update an ownership fact.  A new interest does not
+update an ownership fact.  A possible future event does not
+update update a current fact.
 
 DISTINCT:
-The NEW MEMORY is related to an EXISTING MEMORY but expresses
-a separate fact that should be retained independently.
+Use when NEW MEMORY is the same general subject as an EXISTING MEMORY 
+but expresses a separate factual claim. 
 
 NEW:
-No EXISTING MEMORY is meaningfully related to
-the NEW MEMORY.
+Use when no EXISTING MEMORY is meaningfully expresses a substantially
+related factual claim to the NEW MEMORY.
 
 If the NEW MEMORY conflicts with an EXISTING MEMORY but it is
 unclear whether the new information supersedes the old information,
-do not assume an update. Prefer DISTINCT and explain the ambiguity.
+do not assume an UPDATE. Prefer DISTINCT and explain the ambiguity.
 
 Return only a JSON object with these fields:
 - classification: exactly one of DUPLICATE, UPDATE, DISTINCT, NEW

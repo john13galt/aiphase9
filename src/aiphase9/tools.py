@@ -112,9 +112,19 @@ NEW:
 Use when no EXISTING MEMORY is meaningfully expresses a substantially
 related factual claim to the NEW MEMORY.
 
-If the NEW MEMORY conflicts with an EXISTING MEMORY but it is
-unclear whether the new information supersedes the old information,
-do not assume an UPDATE. Prefer DISTINCT and explain the ambiguity.
+EVIDENCE REQUIREMENTS
+
+- Evaluate the NEW MEMORY against each and every EXISTING
+  MEMORY, individually.
+- Base your decision only on the supplied EXISTING MEMORY.
+- Do not invent causal relationships or additional facts.
+- Do not infer that one fact supersedes another unless the
+  new memory provides evidence of correction or replacement.
+  Instead prefer DISTINCT and explain the ambiguity.
+- When uncertain whether two facts conflict, do not assum UPDATE. 
+  Instead prefer DISTINCT and explain the ambiguity.
+- If a new memory is unrelated to every existing memory,
+  classify it as NEW.
 
 Return only a JSON object with these fields:
 - classification: exactly one of DUPLICATE, UPDATE, DISTINCT, NEW

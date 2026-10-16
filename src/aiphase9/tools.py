@@ -93,24 +93,26 @@ Use exactly one classification:
 
 DUPLICATE:
 Use only when the NEW MEMORY expresses substantially the same
-factual claim as an EXISTING MEMORY.
+factual claim as an EXISTING MEMORY.  This includes when the
+NEW MEMORY factual claim is a generalization of an EXISTING MEMORY
 
 UPDATE:
-Use only when the NEW MEMORY explicitly corrects, replaces, or 
-supersedes an EXISTING MEMORY.
+Use only when the NEW MEMORY explicitly corrects, replaces, 
+supersedes, or clarifies an EXISTING MEMORY.  
 
 A related subject matter is not sufficient.  A new preference 
 does not update an ownership fact.  A new interest does not
 update an ownership fact.  A possible future event does not
-update update a current fact.
+update update a current fact.  A more generalized factual claim
+does not update an EXISTING MEMORY.
 
 DISTINCT:
 Use when NEW MEMORY is the same general subject as an EXISTING MEMORY 
 but expresses a separate factual claim. 
 
 NEW:
-Use when no EXISTING MEMORY is meaningfully expresses a substantially
-related factual claim to the NEW MEMORY.
+Use when NEW MEMORY expresses a factual claim that is not substantially
+related to or the same general subject as any EXISTING MEMORY.
 
 EVIDENCE REQUIREMENTS
 
@@ -135,7 +137,7 @@ Return only a JSON object with these fields:
 
     # Here's where we call the chat with the big prompt I made
     response = chat(
-        model="llama3.1:8b",
+        model="gemma4:e4b",
         messages=[{"role": "user", "content": prompt}],
         format="json"
     )
@@ -341,10 +343,13 @@ def main():
 
     print(test_memories)
     userinput = ""
-    while userinput != "/bye":
+    while True:
         userinput = input("Check this in memory: ")
-        result = classify_memory(userinput, test_memories)
-        print(result)
+        if userinput == "/bye":
+            break
+        else:
+            result = classify_memory(userinput, test_memories)
+            print(result)
 
 if __name__ == "__main__":
     main()

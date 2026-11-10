@@ -31,28 +31,7 @@ def get_time():
     return f"The current time is {datetime.now().time()}."
 
 # this next information is not an actual tool, but a helper function for the recall_memory tool
-MEMORY_FILE = "memory.json"
-MEMORIES_FILE = "memories.txt"
 NEW_MEMORIES_FILE = "new_memories.json"
-
-''' # old vesion, simple dict
-def load_memory():
-    # opens a json file and creates a dict from it
-    if os.path.exists(MEMORY_FILE):
-        with open(MEMORY_FILE, "r") as f:
-            return json.load(f)
-    return {}
-'''
-
-''' # old version, simple list of strings
-def load_memories(MEMORIES_FILE):
-    # opens a text file with memory sentences, one per line
-    if os.path.exists(MEMORIES_FILE):
-        with open(MEMORIES_FILE, "r") as f:
-            lines = [line.strip() for line in f]
-            return []
-    return []
-'''
 
 def load_memories(filename):
     """ Now, memories is a list of dicts.  Each dict contains two entries:
@@ -70,12 +49,13 @@ def write_memories(memories, memoryfile):
     with open(memoryfile, "w") as f:
         json_tricks.dump(memories, f, indent=2)
 
-def classify_memory(new_memory, existing_memories):
-    """ This is cool.  We use a separate ollama chat call to perform an function.
-           Instead of writing code, we let the model figure it out.
-           Works by creating a detailed prompt telling the model what we want
-           it to do and what we want it to return.
-           Note that new_memory is a string and existing_memories is a list of strings (no embeddings)
+# This is cool.  We use a separate ollama chat call to perform an function.
+# Instead of writing code, we let the model figure it out.
+# Works by creating a detailed prompt telling the model what we want
+# it to do and what we want it to return.
+def old_classify_memory(new_memory, existing_memories):
+    """ new_memory:  a single string
+        existing_memories:  a list of strings
     """
     prompt = f"""
 You are evaluating a proposed long-term memory.
@@ -144,6 +124,86 @@ Return only a JSON object with these fields:
     # json.loads converts a json formatted string into a dict object
     return json.loads(response.message.content)
 
+
+# Like the regular "classify_memory" funciton, but
+# only compares two memories at a time and provides
+# a more explicity result
+def classify_memory_relationship(new_memory, existing_memory):
+    """ new_memory:  a single string
+        existing_memory:  a single string
+        returns SAME_FACT, CONTRADICTION, RELATED, UNRELATED, UNCERTAIN
+    """
+    prompt = f"""
+You are classifying the relationship between two memory statements.
+
+EXISTING MEMORY:
+{existing_memory}
+
+NEW MEMORY:
+{new_memory}
+
+Classify the relationship between two statements: the NEW MEMORY and the EXISTING MEMORY.
+
+Use exactly one of these relationships:
+
+SAME_FACT:
+Both statements express essentially the same fact.
+Different wording is acceptable.
+
+CONTRADICTION:
+The statements make incompatible claims about the same
+attribute of the same subject.
+
+RELATED:
+The statements concern a related topic but express
+different facts that can both be true.
+
+UNRELATED:
+The statements concern different topics.
+
+UNCERTAIN:
+There is insufficient information to determine the relationship.
+
+Also determine whether the new statement explicitly replaces
+or corrects the existing fact by treturning a boolean called
+explicity_replacement.
+
+Set explicit_replacement to true ONLY when the new statement
+clearly indicates that the old fact should no longer be treated
+as current. Examples include explicitly correcting a previous
+statement or describing a change such as selling one car and
+buying another.
+
+A contradiction alone does NOT establish an explicit replacement.
+
+Rules:
+- Do not invent relationships that are not supported by the text.
+- Do not assume that related facts replace one another.
+- A preference is not the same as ownership.
+- A broad category and a specific item are not automatically
+  equivalent.
+- Do not assume a name, location, or other attribute
+  has changed merely because a different value is mentioned.
+- If the evidence is ambiguous, use UNCERTAIN.
+- Evaluate only the two statements provided.
+
+Return only a JSON object with exactly these fields:
+    "relationship": exacly one of SAME_FACT | CONTRADICTION | RELATED | UNRELATED | UNCERTAIN
+    "explicit_replacement": a JSON boolean: true | false
+    "evidence": a string that is a brief explanation based only on the two statements
+
+"""
+
+    response = chat(
+        model="gemma4:e4b",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        format="json"
+    )
+
+    return json.loads(response.message.content)
+
 # Now, we're going to make a memory class to use embeddings to do semantic match instead of keyword lookup
 class SemanticMemory:
     def __init__(self, memoryfile, embedding_model):
@@ -198,25 +258,9 @@ class SemanticMemory:
             else:
                 # otherwise, return an empty list
                 return ()
-
-'''  # Older version - uses a dict memory
-def recall_memory_old(query):
-    memory = load_memory()
-    # print(memory)
-    results = []
-    query_words = query.lower().split()
-    # print(query_words)
-    for key, value in memory.items():
-        text = f"{key} {value}".lower()
-        for word in query_words:
-            if word in text:
-                results.append((key, value))
-                break
-    return results
-'''
     
 # Newer version - uses the SemanticMemory class
-# Get sentence tranferor
+# Get sentence transformer (creates [384] embeddings from a sentence)
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 # Make a memory object
 memory = SemanticMemory(NEW_MEMORIES_FILE, embedding_model)
@@ -348,7 +392,8 @@ def main():
         if userinput == "/bye":
             break
         else:
-            result = classify_memory(userinput, test_memories)
+            for memory in test_memories:
+                result = classify_memory_relationship(userinput, test_memories)
             print(result)
 
 if __name__ == "__main__":

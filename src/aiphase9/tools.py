@@ -128,7 +128,7 @@ Return only a JSON object with these fields:
 # Like the regular "classify_memory" funciton, but
 # only compares two memories at a time and provides
 # a more explicity result
-def classify_memory_relationship(new_memory, existing_memory):
+def classify_memory_relationship(new_fact, existing_memory):
     """ new_memory:  a single string
         existing_memory:  a single string
         returns a json object with:
@@ -137,17 +137,14 @@ def classify_memory_relationship(new_memory, existing_memory):
         - evidence: text explanation of reasoning
     """
     prompt = f"""
-You are classifying the relationship between two memory statements.
+You are classifying the relationship between two memory statements:
 
-IMPORTANT: Do not confuse their roles.
+The {new_fact} parameter is a NEW FACT to evaluate.
+The {existing_memory} parameter is an EXISTING MEMORY that has been previously stored
 
-EXISTING MEMORY (the previously stored fact): "{existing_memory}"
+First, identify what each statement (the NEW FACT and EXISTING MEMORY) says.
 
-NEW MEMORY (the newly supplied information): "{new_memory}"
-
-First, identify what each statement says.
-
-Then classify the relationship between two statements: the NEW MEMORY and the EXISTING MEMORY.
+Then classify the relationship between two statements: the NEW FACT and the EXISTING MEMORY.
 
 Use exactly one of these 5 relationships: SAME_FACT, CONTRADICTION, RELATED, UNRELATED, UNCERTAIN
 
@@ -160,7 +157,7 @@ Different wording is acceptable.
 CONTRADICTION:
 The statements make incompatible claims about the same
 attribute of the same subject.  This includes situations
-where the NEW MEMORY explicitly indicates that the fact 
+where the NEW FACT explicitly indicates that the fact 
 expressed by the EXISTING MEMORY has changed or been updated
 
 RELATED:
@@ -175,10 +172,10 @@ There is insufficient information to determine the relationship.
 
 Also determine whether the new statement explicitly replaces
 or corrects the existing fact by treturning a boolean called
-explicity_replacement.
+explicit_replacement.
 
-Set explicit_replacement to true ONLY when the new statement
-clearly indicates that the old fact should no longer be treated
+Set explicit_replacement to true ONLY when the NEW FACT
+clearly indicates that the EXISTING MEMORY should no longer be treated
 as current. Examples include explicitly correcting a previous
 statement or describing a change such as selling one car and
 buying another.

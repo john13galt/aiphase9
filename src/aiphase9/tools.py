@@ -131,7 +131,10 @@ Return only a JSON object with these fields:
 def classify_memory_relationship(new_memory, existing_memory):
     """ new_memory:  a single string
         existing_memory:  a single string
-        returns SAME_FACT, CONTRADICTION, RELATED, UNRELATED, UNCERTAIN
+        returns a json object with:
+        - relationship: SAME_FACT, CONTRADICTION, RELATED, UNRELATED, UNCERTAIN
+        - explicit_replacement:  json boolean true or false
+        - evidence: text explanation of reasoning
     """
     prompt = f"""
 You are classifying the relationship between two memory statements.
@@ -203,6 +206,44 @@ Return only a JSON object with exactly these fields:
     )
 
     return json.loads(response.message.content)
+
+def decide_memory_action(classification):
+    """ classification:  a json object returned from classify_memory_relationship
+        returns:  one of IGNORE, UPDATE, ADD, REVIEW
+    """    
+    relationship = classification["relationship"]
+    explicit_replacement = classification["explicit_replacement"]
+
+    if relationship == "SAME_FACT":
+        return "IGNORE"
+
+    if relationship == "CONTRADICTION":
+        if explicit_replacement:
+            return "UPDATE"
+        else:
+            return "REVIEW"
+
+    if relationship in ("RELATED", "UNRELATED"):
+        return "ADD"
+
+    # otherwise (classification = UNCERTAIN)
+    return "REVIEW"
+
+
+def evaluate_memory(new_memory, existing_memory):
+    """ Takes two memories (strings) and generate a dict output
+    """
+    # get the relationship between the old and new memory
+    classification = classify_memory_relationship(new_memory, existing_memory)
+    # get the action to take as a result of the relationship
+    action = decide_memory_action(classification)
+    # build a dict to return
+    return {
+        "new_memory": new_memory,
+        "existing_memory": existing_memory,
+        "classification": classification,
+        "action": action
+    }
 
 # Now, we're going to make a memory class to use embeddings to do semantic match instead of keyword lookup
 class SemanticMemory:
@@ -384,6 +425,39 @@ def main():
         "The user's car is a BMW 530e.",
         "The user lives in Texas."
     ]
+
+    tests = [
+        (
+            "The user's favorite color is green.",
+            "The user prefers green to other colors."
+        ),
+        (
+            "The user's favorite color is green.",
+            "The user's favorite color has changed from green to red."
+        ),
+        (
+            "The user's car is a BMW 530e.",
+            "The user likes BMWs."
+        ),
+        (
+            "The user's car is a BMW 530e.",
+            "The user sold his BMW 530e and bought a Dodge."
+        ),
+        (
+            "The user lives in Texas.",
+            "The user exercises every day."
+        )
+    ]
+
+    for test in tests:
+        print(test[0])
+        print(test[1])
+        result = classify_memory_relationship(test[0], test[1])
+        print(result)
+        action = decide_memory_action(result)
+        print(action)
+
+    return
 
     print(test_memories)
     userinput = ""

@@ -449,6 +449,10 @@ def main():
         (
             "The user lives in Texas.",
             "The user exercises every day."
+        ),
+        (
+            "The user lives in Texas.",
+            "The user lives in Kansas."
         )
     ]
 

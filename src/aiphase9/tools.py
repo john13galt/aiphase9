@@ -128,7 +128,7 @@ Return only a JSON object with these fields:
 # Like the regular "classify_memory" funciton, but
 # only compares two memories at a time and provides
 # a more explicity result
-def classify_memory_relationship(new_fact, existing_memory):
+def classify_memory_relationship(existing_memory, new_fact):
     """ new_memory:  a single string
         existing_memory:  a single string
         returns a json object with:
@@ -139,8 +139,8 @@ def classify_memory_relationship(new_fact, existing_memory):
     prompt = f"""
 You are classifying the relationship between two memory statements:
 
-The {new_fact} parameter is a NEW FACT to evaluate.
 The {existing_memory} parameter is an EXISTING MEMORY that has been previously stored
+The {new_fact} parameter is a NEW FACT to evaluate.
 
 First, identify what each statement (the NEW FACT and EXISTING MEMORY) says.
 

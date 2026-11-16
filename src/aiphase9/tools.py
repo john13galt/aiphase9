@@ -139,15 +139,19 @@ def classify_memory_relationship(new_memory, existing_memory):
     prompt = f"""
 You are classifying the relationship between two memory statements.
 
-EXISTING MEMORY:
-{existing_memory}
+IMPORTANT: Do not confuse their roles.
 
-NEW MEMORY:
-{new_memory}
+EXISTING MEMORY (the previously stored fact): "{existing_memory}"
 
-Classify the relationship between two statements: the NEW MEMORY and the EXISTING MEMORY.
+NEW MEMORY (the newly supplied information): "{new_memory}"
 
-Use exactly one of these relationships:
+First, identify what each statement says.
+
+Then classify the relationship between two statements: the NEW MEMORY and the EXISTING MEMORY.
+
+Use exactly one of these 5 relationships: SAME_FACT, CONTRADICTION, RELATED, UNRELATED, UNCERTAIN
+
+Here are the rules for choosing the relationship type:
 
 SAME_FACT:
 Both statements express essentially the same fact.
@@ -155,7 +159,9 @@ Different wording is acceptable.
 
 CONTRADICTION:
 The statements make incompatible claims about the same
-attribute of the same subject.
+attribute of the same subject.  This includes situations
+where the NEW MEMORY explicitly indicates that the fact 
+expressed by the EXISTING MEMORY has changed or been updated
 
 RELATED:
 The statements concern a related topic but express

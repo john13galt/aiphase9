@@ -158,7 +158,7 @@ CONTRADICTION:
 The statements make incompatible claims about the same
 attribute of the same subject.  This includes situations
 where the NEW FACT explicitly indicates that the fact 
-expressed by the EXISTING MEMORY has changed or been updated
+expressed by the EXISTING MEMORY has changed or been updated.
 
 RELATED:
 The statements concern a related topic but express
@@ -174,13 +174,17 @@ Also determine whether the new statement explicitly replaces
 or corrects the existing fact by treturning a boolean called
 explicit_replacement.
 
-Set explicit_replacement to true ONLY when the NEW FACT
+Set explicit_replacement to true ONLY when the relationship is
+CONTRADICTION and when the NEW FACT
 clearly indicates that the EXISTING MEMORY should no longer be treated
 as current. Examples include explicitly correcting a previous
 statement or describing a change such as selling one car and
 buying another.
 
-A contradiction alone does NOT establish an explicit replacement.
+A CONTRADICTION alone does NOT establish an explicit replacement.  
+If the NEW FACT contradicts the EXISTING MEMORY, but does not 
+explicitly give evidence that the the NEW FACT should replace the
+EXISTING MEMORY, then explicit_replacement should be false.
 
 Rules:
 - Do not invent relationships that are not supported by the text.

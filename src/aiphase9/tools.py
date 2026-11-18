@@ -53,81 +53,6 @@ def write_memories(memories, memoryfile):
 # Instead of writing code, we let the model figure it out.
 # Works by creating a detailed prompt telling the model what we want
 # it to do and what we want it to return.
-def old_classify_memory(new_memory, existing_memories):
-    """ new_memory:  a single string
-        existing_memories:  a list of strings
-    """
-    prompt = f"""
-You are evaluating a proposed long-term memory.
-
-NEW MEMORY:
-{new_memory}
-
-EXISTING MEMORIES:
-{json.dumps(existing_memories, indent=2)}
-
-Classify the relationship between the new memory and the
-existing memories.
-
-Use exactly one classification:
-
-DUPLICATE:
-Use only when the NEW MEMORY expresses substantially the same
-factual claim as an EXISTING MEMORY.  This includes when the
-NEW MEMORY factual claim is a generalization of an EXISTING MEMORY
-
-UPDATE:
-Use only when the NEW MEMORY explicitly corrects, replaces, 
-supersedes, or clarifies an EXISTING MEMORY.  
-
-A related subject matter is not sufficient.  A new preference 
-does not update an ownership fact.  A new interest does not
-update an ownership fact.  A possible future event does not
-update update a current fact.  A more generalized factual claim
-does not update an EXISTING MEMORY.
-
-DISTINCT:
-Use when NEW MEMORY is the same general subject as an EXISTING MEMORY 
-but expresses a separate factual claim. 
-
-NEW:
-Use when NEW MEMORY expresses a factual claim that is not substantially
-related to or the same general subject as any EXISTING MEMORY.
-
-EVIDENCE REQUIREMENTS
-
-- Evaluate the NEW MEMORY against each and every EXISTING
-  MEMORY, individually.
-- Base your decision only on the supplied EXISTING MEMORY.
-- Do not invent causal relationships or additional facts.
-- Do not infer that one fact supersedes another unless the
-  new memory provides evidence of correction or replacement.
-  Instead prefer DISTINCT and explain the ambiguity.
-- When uncertain whether two facts conflict, do not assum UPDATE. 
-  Instead prefer DISTINCT and explain the ambiguity.
-- If a new memory is unrelated to every existing memory,
-  classify it as NEW.
-
-Return only a JSON object with these fields:
-- classification: exactly one of DUPLICATE, UPDATE, DISTINCT, NEW
-- existing_memory: the exact EXISTING MEMORY being duplicated
-  or updated, or null if none
-- reason: a short explanation
-"""
-
-    # Here's where we call the chat with the big prompt I made
-    response = chat(
-        model="gemma4:e4b",
-        messages=[{"role": "user", "content": prompt}],
-        format="json"
-    )
-    # json.loads converts a json formatted string into a dict object
-    return json.loads(response.message.content)
-
-
-# Like the regular "classify_memory" funciton, but
-# only compares two memories at a time and provides
-# a more explicity result
 def classify_memory_relationship(existing_memory, new_fact):
     """ new_memory:  a single string
         existing_memory:  a single string
@@ -237,18 +162,20 @@ def decide_memory_action(classification):
     return "REVIEW"
 
 
-def evaluate_memory(new_memory, existing_memory):
+def evaluate_memory(existing_memory, new_fact):
     """ Takes two memories (strings) and generate a dict output
     """
     # get the relationship between the old and new memory
-    classification = classify_memory_relationship(new_memory, existing_memory)
+    classification = classify_memory_relationship(existing_memory, new_fact)
     # get the action to take as a result of the relationship
     action = decide_memory_action(classification)
     # build a dict to return
     return {
-        "new_memory": new_memory,
+        "new_fact": new_fact,
         "existing_memory": existing_memory,
-        "classification": classification,
+        "relationship": classification["relationship"],
+        "explicit_replacement": classification["explicit_replacement"],
+        "evidence": classification["evidence"],
         "action": action
     }
 
@@ -268,7 +195,21 @@ class SemanticMemory:
                               "embedding": self.embedding_model.encode(memory, normalize_embeddings=True)})
         write_memories(self.memories, self.memoryfile)
 
-    # Use sementic search (using embeddings) to find an item in memory
+    # check to see if a new text is already in the memories
+    def check(self, text):
+        for memory in self.memories:
+            if text == memory["text"]:
+                return True
+        return False
+
+    # print the list of memories
+    def __str__(self):
+        printstring = ""
+        for memory in self.memories:
+            printstring += f"{memory["text"]}\n"
+        return printstring
+    
+    # Use search (using embeddings) to find the top "k" items from the existing memory.
     def search(self, query, topk = 3):
         # Create embeddings for new query
         query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)
@@ -276,7 +217,7 @@ class SemanticMemory:
         memory_embeddings = [memory["embedding"] for memory in self.memories]
         # If there are memories...
         if memory_embeddings:
-            # Calculate the semantic similarity of each memory with the query
+            # Calculate the semantic similarity of all memories with the query
             similarities = memory_embeddings @ query_embeddings # this is just like attention!
             # get the top"k" number of best semantic match results... returns indeces, sorted smallest to largest
             indeces = np.argsort(similarities)[-topk:]
@@ -286,6 +227,7 @@ class SemanticMemory:
             # otherwise, return an empty list
             return []
 
+    # Use find_similar (using embeddings) to find only the top match, and only if it exceeds threshold.
     def find_similar(self, query, threshold = 0.70):
         # Create embeddings for new query
         query_embeddings = self.embedding_model.encode(query, normalize_embeddings=True)
@@ -430,8 +372,20 @@ def main():
         "The user's name is Matthew.",
         "The user's favorite color is green.",
         "The user's car is a BMW 530e.",
-        "The user lives in Texas."
+        "The user lives in Texas.",
+        "The user likes BMWs.",
+        "The user likes hybrid electric vehicles.",
+        "The user is interested in buying a new vehicle.",
+        "The user previously owned an Acura TL."
     ]
+
+    for test in test_memories:
+        if memory.check(test):
+            print(f"TRUE: {test}")
+        else:
+            print(f"FALSE: {test}")
+
+    return
 
     tests = [
         (
@@ -460,15 +414,15 @@ def main():
         )
     ]
 
-    for test in tests:
-        print(test[0])
-        print(test[1])
-        result = classify_memory_relationship(test[0], test[1])
-        print(result)
-        action = decide_memory_action(result)
-        print(action)
+    # for test in tests:
+    #     print(test[0])
+    #     print(test[1])
+    #     result = classify_memory_relationship(test[0], test[1])
+    #     print(result)
+    #     action = decide_memory_action(result)
+    #     print(action)
 
-    return
+    # return
 
     print(test_memories)
     userinput = ""

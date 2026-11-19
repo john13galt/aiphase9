@@ -397,7 +397,7 @@ def main():
             save_memory(test)
 
     print(memory)
-    write_memories(memory, NEW_MEMORIES_FILE)
+    write_memories(memory.memories, NEW_MEMORIES_FILE)
 
     new_memory = "The user sold his BMW 530e and bought a Porsche Taycan."
 

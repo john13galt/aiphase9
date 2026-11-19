@@ -276,6 +276,16 @@ def make_save_memory(memory):
 # Then this creates the instance for me to call
 save_memory = make_save_memory(memory)
 
+# similarly, this functions makes a check_memory function with my memory objsect embedded
+def make_check_memory(memory):
+    def check_memory(text):
+        return memory.check(text)
+    # and return it
+    return check_memory
+
+# Then this creates the instance for me to call
+check_memory = make_check_memory(memory)
+
 # ----------- Section 2:  Tool registry -----------
 tool_registry = {
     "calculator": calculator,
@@ -380,7 +390,7 @@ def main():
     ]
 
     for test in test_memories:
-        if memory.check(test):
+        if check_memory(test):
             print(f"TRUE: {test}")
         else:
             print(f"FALSE: {test}")

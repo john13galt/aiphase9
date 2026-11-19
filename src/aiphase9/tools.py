@@ -259,7 +259,7 @@ memory = SemanticMemory(NEW_MEMORIES_FILE, embedding_model)
 def make_recall_memory(memory):
     # Create the function
     def recall_memory(query):
-        return memory.search(query, topk=3)
+        return memory.search(query, topk=5)
     # and return it
     return recall_memory
 
@@ -401,7 +401,7 @@ def main():
 
     new_memory = "The user sold his BMW 530e and bought a Porsche Taycan."
 
-    best_matches = recall_memory(new_memory)
+    best_matches = recall_memory(new_memory, )
 
     for match in best_matches:
         result = evaluate_memory(match, new_memory)

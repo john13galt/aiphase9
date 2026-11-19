@@ -163,7 +163,7 @@ def decide_memory_action(classification):
 
 
 def evaluate_memory(existing_memory, new_fact):
-    """ Takes two memories (strings) and generate a dict output
+    """ Takes two memories (strings) - existing and then new - and generate a dict output
     """
     # get the relationship between the old and new memory
     classification = classify_memory_relationship(existing_memory, new_fact)
@@ -394,6 +394,18 @@ def main():
             print(f"TRUE: {test}")
         else:
             print(f"FALSE: {test}")
+            save_memory(test)
+
+    print(memory)
+    write_memories(memory, NEW_MEMORIES_FILE)
+
+    new_memory = "The user sold his BMW 530e and bought a Porsche Taycan."
+
+    best_matches = recall_memory(new_memory)
+
+    for match in best_matches:
+        result = evaluate_memory(match, new_memory)
+        print(result)
 
     return
 
@@ -434,16 +446,16 @@ def main():
 
     # return
 
-    print(test_memories)
-    userinput = ""
-    while True:
-        userinput = input("Check this in memory: ")
-        if userinput == "/bye":
-            break
-        else:
-            for memory in test_memories:
-                result = classify_memory_relationship(userinput, test_memories)
-            print(result)
+    # print(test_memories)
+    # userinput = ""
+    # while True:
+    #     userinput = input("Check this in memory: ")
+    #     if userinput == "/bye":
+    #         break
+    #     else:
+    #         for memory in test_memories:
+    #             result = classify_memory_relationship(userinput, test_memories)
+    #         print(result)
 
 if __name__ == "__main__":
     main()
